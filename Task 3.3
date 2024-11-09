@@ -1,0 +1,31 @@
+private void fetchItems() {
+    Call<List<Item>> call = apiService.getItems();
+    call.enqueue(new Callback<List<Item>>() {
+        @Override
+        public void onResponse(Call<List<Item>> call, Response<List<Item>> response) {
+            if (response.isSuccessful() && response.body() != null) {
+                List<Item> items = response.body();
+                // Handle the list of items (e.g., display in a RecyclerView)
+                Toast.makeText(MainActivity.this, "Data fetched", Toast.LENGTH_SHORT).show();
+            } else {
+                // Handle API errors
+                String errorMessage = "Unknown error";
+                if (response.code() == 404) {
+                    errorMessage = "Data not found!";
+                } else if (response.code() == 500) {
+                    errorMessage = "Server error. Please try again later.";
+                }
+                Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        @Override
+        public void onFailure(Call<List<Item>> call, Throwable t) {
+            if (t instanceof IOException) {
+                Toast.makeText(MainActivity.this, "Network failure. Check your internet connection.", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(MainActivity.this, "Conversion error! Failed to parse response.", Toast.LENGTH_LONG).show();
+            }
+        }
+    });
+}
