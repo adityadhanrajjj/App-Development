@@ -1,0 +1,93 @@
+Push Notifications with Firebase Cloud Messaging.................................................................................................................................import com.google.firebase.messaging.FirebaseMessagingService;
+
+import com.google.firebase.messaging.RemoteMessage;
+import android.util.Log;
+
+public class MyFirebaseMessagingService extends FirebaseMessagingService {
+    private static final String TAG = "FCMService";
+
+    @Override
+    public void onMessageReceived(RemoteMessage remoteMessage) {
+        Log.d(TAG, "Message received from: " + remoteMessage.getFrom());
+        if (remoteMessage.getNotification() != null) {
+            Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
+            // Handle the message and create a notification to show in the app
+        }
+    }
+
+    @Override
+    public void onNewToken(String token) {
+        Log.d(TAG, "Refreshed token: " + token);
+        // Save or send this token to the app server for future messaging
+    }
+}
+
+
+
+User Authentication with Firebase............................................................................................................................................
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+
+public class MainActivity extends AppCompatActivity {
+    private FirebaseAuth mAuth;
+    private EditText emailEditText, passwordEditText;
+    private Button loginButton, registerButton;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Initialize Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
+
+        // Find views
+        emailEditText = findViewById(R.id.emailEditText);
+        passwordEditText = findViewById(R.id.passwordEditText);
+        loginButton = findViewById(R.id.loginButton);
+        registerButton = findViewById(R.id.registerButton);
+
+        // Login button logic
+        loginButton.setOnClickListener(view -> loginUser(
+            emailEditText.getText().toString(),
+            passwordEditText.getText().toString()
+        ));
+
+        // Register button logic
+        registerButton.setOnClickListener(view -> registerUser(
+            emailEditText.getText().toString(),
+            passwordEditText.getText().toString()
+        ));
+    }
+
+    private void loginUser(String email, String password) {
+        mAuth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this, task -> {
+                if (task.isSuccessful()) {
+                    Toast.makeText(MainActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Login failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+    }
+
+    private void registerUser(String email, String password) {
+        mAuth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this, task -> {
+                if (task.isSuccessful()) {
+                    Toast.makeText(MainActivity.this, "Registration successful!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+    }
+}
